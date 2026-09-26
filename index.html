@@ -1,0 +1,1558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#d9ddd5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11161a" media="(prefers-color-scheme: dark)">
+<title>Cloud gaming check</title>
+<meta name="description" content="Test whether a home Wi-Fi and internet connection can run Xbox Cloud Gaming. Runs on your phone, keeps results on your phone.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --chassis: #d9ddd5;
+  --face: #f3f4ef;
+  --face-2: #e8eae4;
+  --ink: #1c2226;
+  --ink-2: #4b5358;
+  --muted: #6f777c;
+  --rule: #c6cbc2;
+  --yellow: #f2c230;
+  --yellow-press: #dcae1c;
+  --yellow-ink: #1c2226;
+  --good: #0b7f86;
+  --ok: #b87800;
+  --bad: #c2323a;
+  --good-tint: #d3e7e6;
+  --ok-tint: #efe2c4;
+  --bad-tint: #efd3d2;
+  --display: #1b2226;
+  --display-ink: #e6ece8;
+  --display-2: #9aa6ab;
+  --display-grid: #2c363c;
+  --d-good: #1aa6a0;
+  --d-ok: #f0b429;
+  --d-bad: #e5484d;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --cond: "Barlow Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --chassis: #11161a;
+    --face: #1b2226;
+    --face-2: #232b30;
+    --ink: #e6ece8;
+    --ink-2: #b9c3c7;
+    --muted: #8d989d;
+    --rule: #323c42;
+    --good: #1aa6a0;
+    --ok: #f0b429;
+    --bad: #e5484d;
+    --good-tint: #173c3d;
+    --ok-tint: #3e3420;
+    --bad-tint: #43252a;
+    --display: #0c1114;
+    --display-grid: #222b30;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--chassis);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+  min-height: 100dvh;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 0 14px; }
+[hidden] { display: none !important; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Header */
+.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) 0 10px;
+}
+.brand { font-family: var(--cond); font-weight: 700; font-size: 22px; letter-spacing: 0.01em; line-height: 1; }
+.brand small { display: block; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--ink-2); letter-spacing: 0; margin-top: 3px; }
+.tabs { display: flex; background: var(--face-2); border-radius: 999px; padding: 3px; border: 1px solid var(--rule); }
+.tabs button {
+  border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2);
+  min-height: 36px;
+}
+.tabs button[aria-selected="true"] { background: var(--face); color: var(--ink); box-shadow: 0 1px 0 var(--rule); }
+.tabs .count { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 500; margin-left: 4px; }
+
+/* The display panel: the one loud thing */
+.display {
+  background: var(--display);
+  color: var(--display-ink);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 10px;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.25);
+  margin-bottom: 12px;
+}
+.bezel {
+  background: var(--face);
+  border-radius: 24px;
+  padding: 6px;
+  border: 1px solid var(--rule);
+  margin-bottom: 14px;
+}
+.bezel .display { margin: 0; }
+.d-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; min-height: 62px; }
+.d-stage { font-size: 14px; color: var(--display-2); line-height: 1.3; max-width: 55%; }
+.d-stage b { display: block; color: var(--display-ink); font-weight: 600; font-size: 16px; }
+.d-read { text-align: right; font-family: var(--cond); line-height: 0.9; }
+.d-read .v { font-size: 56px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.d-read .u { font-size: 18px; color: var(--display-2); font-weight: 500; margin-left: 3px; }
+.d-read .sub { display: block; font-family: var(--body); font-size: 12px; color: var(--display-2); margin-top: 6px; line-height: 1.2; }
+.d-idle { padding: 4px 0 2px; }
+.d-idle h1 { font-family: var(--cond); font-weight: 600; font-size: 34px; line-height: 1.02; margin: 0 0 8px; letter-spacing: 0.005em; max-width: 14ch; }
+.d-idle p { margin: 0; color: var(--display-2); font-size: 14px; }
+.trace-box { position: relative; margin-top: 8px; }
+canvas.trace { width: 100%; height: 150px; display: block; touch-action: pan-y; }
+.trace-tip {
+  position: absolute; top: 4px; pointer-events: none; background: #0008; color: var(--display-ink);
+  border-radius: 6px; padding: 3px 7px; font-size: 12px; white-space: nowrap; transform: translateX(-50%);
+  backdrop-filter: blur(4px);
+}
+.d-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--display-2); margin-top: 6px; flex-wrap: wrap; }
+.d-foot .key { display: inline-flex; gap: 10px; }
+.d-foot i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: 0; }
+
+/* Faceplate panels */
+.panel { background: var(--face); border-radius: var(--radius-lg); border: 1px solid var(--rule); padding: 14px; margin-bottom: 12px; }
+.panel h2 { font-family: var(--cond); font-weight: 600; font-size: 21px; margin: 0 0 10px; line-height: 1.1; }
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field > .lab { font-weight: 600; font-size: 15px; margin-bottom: 6px; display: block; }
+.field .hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button {
+  border: 1px solid var(--rule); background: var(--face-2); border-radius: 999px; padding: 8px 14px; min-height: 42px;
+  font-weight: 500; font-size: 15px;
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--face); border-color: var(--ink); }
+.text-in {
+  width: 100%; border: 1px solid var(--rule); background: var(--face-2); border-radius: var(--radius-sm); padding: 10px 12px; min-height: 44px; font-size: 16px;
+}
+.detected { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
+.detected dt { color: var(--muted); }
+.detected dd { margin: 0; font-weight: 500; }
+.warnline { background: var(--ok-tint); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; margin-top: 10px; }
+.errline { background: var(--bad-tint); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
+
+/* Stages */
+.stages { list-style: none; margin: 0; padding: 0; counter-reset: st; }
+.stages li { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--rule); }
+.stages li:first-child { border-top: 0; }
+.stages .n {
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-family: var(--cond); font-weight: 600; font-size: 15px;
+  border: 1.5px solid var(--rule); color: var(--muted);
+}
+.stages li[data-state="run"] .n { border-color: var(--ink); color: var(--ink); }
+.stages li[data-state="done"] .n { background: var(--ink); border-color: var(--ink); color: var(--face); }
+.stages li[data-state="skip"] { opacity: 0.55; }
+.stages .t { font-weight: 500; font-size: 15px; line-height: 1.25; }
+.stages .t small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; }
+.stages .r { font-family: var(--cond); font-weight: 600; font-size: 17px; font-variant-numeric: tabular-nums; text-align: right; }
+.bar { height: 3px; background: var(--face-2); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+.bar > span { display: block; height: 100%; width: 0; background: var(--ink); transition: width 0.25s linear; }
+@media (prefers-reduced-motion: reduce) { .bar > span { transition: none; } }
+
+/* Verdict */
+.verdict { border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; border: 1px solid var(--rule); background: var(--face); }
+.verdict .row { display: flex; gap: 12px; align-items: flex-start; }
+.verdict h2 { font-family: var(--cond); font-size: 30px; line-height: 1.02; margin: 0; font-weight: 700; }
+.verdict p { margin: 6px 0 0; color: var(--ink-2); font-size: 15px; }
+.verdict[data-level="good"] { background: var(--good-tint); border-color: transparent; }
+.verdict[data-level="ok"] { background: var(--ok-tint); border-color: transparent; }
+.verdict[data-level="bad"] { background: var(--bad-tint); border-color: transparent; }
+.verdict .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 3px 9px; border-radius: 999px; background: var(--face); border: 1px solid var(--rule); color: var(--ink-2); }
+.chip.peak { background: var(--ink); color: var(--face); border-color: var(--ink); }
+
+.st-icon { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; }
+.st-icon svg { width: 16px; height: 16px; }
+.st-icon[data-g="good"] { background: var(--good); }
+.st-icon[data-g="ok"] { background: var(--ok); }
+.st-icon[data-g="bad"] { background: var(--bad); }
+.st-icon[data-g="na"] { background: var(--muted); }
+.st-icon.sm { width: 20px; height: 20px; }
+.st-icon.sm svg { width: 11px; height: 11px; }
+
+/* Metric rows */
+.metrics { list-style: none; margin: 0; padding: 0; }
+.metric { padding: 12px 0; border-top: 1px solid var(--rule); }
+.metric:first-child { border-top: 0; padding-top: 2px; }
+.m-head { display: flex; align-items: center; gap: 8px; }
+.m-name { font-weight: 600; font-size: 15px; flex: 1; line-height: 1.2; }
+.m-name small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.m-val { font-family: var(--cond); font-weight: 600; font-size: 24px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-val .u { font-size: 14px; color: var(--muted); margin-left: 2px; font-weight: 500; }
+.m-why { font-size: 14px; color: var(--ink-2); margin: 6px 0 0 28px; }
+.band { position: relative; height: 10px; margin: 8px 0 0 28px; display: flex; gap: 2px; }
+.band > span { height: 100%; }
+.band > span:first-child { border-radius: 4px 0 0 4px; }
+.band > span:last-of-type { border-radius: 0 4px 4px 0; }
+.band .z-good { background: var(--good-tint); }
+.band .z-ok { background: var(--ok-tint); }
+.band .z-bad { background: var(--bad-tint); }
+.band .mk { position: absolute; top: -3px; width: 4px; height: 16px; border-radius: 2px; background: var(--ink); transform: translateX(-2px); box-shadow: 0 0 0 2px var(--face); }
+.band-scale { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin: 3px 0 0 28px; font-variant-numeric: tabular-nums; }
+.secondary-note { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
+
+details.more { margin-top: 4px; }
+details.more summary { cursor: pointer; font-weight: 600; font-size: 15px; padding: 8px 0; list-style: none; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: "+"; display: inline-block; width: 18px; font-family: var(--cond); font-size: 18px; }
+details.more[open] summary::before { content: "\2212"; }
+.kv { width: 100%; border-collapse: collapse; font-size: 14px; }
+.kv td { padding: 5px 0; border-top: 1px solid var(--rule); vertical-align: top; }
+.kv td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+.guide ol, .guide ul { margin: 0; padding-left: 20px; }
+.guide li { margin: 0 0 8px; font-size: 15px; }
+.guide li:last-child { margin-bottom: 0; }
+
+/* Action bar */
+.actionbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--chassis) 70%, transparent);
+}
+.actionbar .wrap { display: flex; gap: 8px; padding: 0; }
+.btn {
+  border: 0; border-radius: 16px; min-height: 58px; padding: 0 18px; font-family: var(--cond); font-weight: 700; font-size: 22px;
+  letter-spacing: 0.01em;
+}
+.btn-go { flex: 1; background: var(--yellow); color: var(--yellow-ink); box-shadow: 0 2px 0 var(--yellow-press); }
+.btn-go:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--yellow-press); }
+.btn-stop { flex: 1; background: var(--ink); color: var(--face); }
+.btn-2 { background: var(--face); color: var(--ink); border: 1px solid var(--rule); font-size: 18px; }
+.btn-sm { border: 1px solid var(--rule); background: var(--face-2); border-radius: 999px; padding: 8px 14px; min-height: 40px; font-weight: 600; font-size: 14px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* Runs */
+.run-filter { margin-bottom: 12px; }
+.run { background: var(--face); border: 1px solid var(--rule); border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 10px; }
+.run-head { display: flex; gap: 10px; align-items: flex-start; }
+.run-title { flex: 1; min-width: 0; }
+.run-title b { font-weight: 600; font-size: 16px; display: block; line-height: 1.25; }
+.run-title small { color: var(--muted); font-size: 13px; }
+.run-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.run-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.run-nums div { background: var(--face-2); border-radius: var(--radius-sm); padding: 6px 7px; }
+.run-nums b { display: block; font-family: var(--cond); font-weight: 600; font-size: 19px; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.run-nums small { font-size: 11.5px; color: var(--muted); line-height: 1.2; display: block; }
+.run-nums .g-bad b { color: var(--bad); }
+.run-nums .g-ok b { color: var(--ok); }
+.run-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.run-actions [data-del] { min-width: 88px; }
+.run-actions label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 0 12px; min-height: 40px; border-radius: 999px; border: 1px solid var(--rule); background: var(--face-2); }
+.run-actions input { width: 18px; height: 18px; accent-color: var(--ink); }
+.run-detail { margin-top: 10px; }
+.empty { text-align: center; color: var(--ink-2); padding: 28px 16px; }
+.empty b { display: block; font-family: var(--cond); font-size: 22px; color: var(--ink); margin-bottom: 4px; }
+
+.cmp { width: 100%; border-collapse: collapse; font-size: 14px; }
+.cmp th, .cmp td { padding: 7px 4px; border-top: 1px solid var(--rule); text-align: right; vertical-align: middle; }
+.cmp th { font-weight: 600; font-size: 13px; color: var(--ink-2); }
+.cmp td:first-child, .cmp th:first-child { text-align: left; }
+.cmp td .gv { display: inline-flex; align-items: center; gap: 5px; justify-content: flex-end; font-variant-numeric: tabular-nums; font-weight: 600; }
+.insight { background: var(--face-2); border-radius: var(--radius-md); padding: 10px 12px; font-size: 14.5px; margin-top: 12px; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  background: var(--ink); color: var(--face); padding: 9px 14px; border-radius: 999px; font-size: 14px; z-index: 9; max-width: 90vw;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Cloud gaming check<small>Is this connection good enough for Xbox Cloud Gaming?</small></div>
+    <div class="tabs" role="tablist" aria-label="Views">
+      <button role="tab" id="tab-test" aria-selected="true" aria-controls="view-test">Test</button>
+      <button role="tab" id="tab-runs" aria-selected="false" aria-controls="view-runs">Runs<span class="count" id="runCount"></span></button>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-test" role="tabpanel" aria-labelledby="tab-test">
+      <div class="bezel">
+        <div class="display" id="display">
+          <div class="d-idle" id="dIdle">
+            <h1>Will cloud games run smoothly here?</h1>
+            <p id="dIdleSub">Checks distance to Xbox's Indian data centres, jitter, lag spikes, packet loss, and speed.</p>
+          </div>
+          <div id="dLive" hidden>
+            <div class="d-head">
+              <div class="d-stage"><b id="dStage">Starting</b><span id="dStageSub"></span></div>
+              <div class="d-read"><span class="v" id="dVal">--</span><span class="u" id="dUnit">ms</span><span class="sub" id="dValSub"></span></div>
+            </div>
+          </div>
+          <div class="trace-box">
+            <canvas class="trace" id="trace" role="img" aria-label="Live latency trace. No samples yet."></canvas>
+            <div class="trace-tip" id="traceTip" hidden></div>
+          </div>
+          <div class="d-foot">
+            <span class="key"><span><i style="background:var(--d-good)"></i>Good</span><span><i style="background:var(--d-ok)"></i>Borderline</span><span><i style="background:var(--d-bad)"></i>Spike or drop</span></span>
+            <span id="dFootR">Latency, ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="errBox" class="errline" hidden></div>
+
+      <div id="setup">
+        <div class="panel">
+          <h2>Where are you testing?</h2>
+          <div class="field">
+            <span class="lab" id="lab-place">Place</span>
+            <div class="seg" role="group" aria-labelledby="lab-place" data-pref="place">
+              <button type="button" data-v="Current flat">Current flat</button>
+              <button type="button" data-v="New flat">New flat</button>
+              <button type="button" data-v="Other">Other</button>
+            </div>
+            <input class="text-in" id="placeOther" placeholder="Name this place, e.g. a friend's flat" hidden>
+          </div>
+          <div class="field">
+            <span class="lab" id="lab-spot">Spot in the home</span>
+            <div class="seg" role="group" aria-labelledby="lab-spot" data-pref="spot">
+              <button type="button" data-v="Next to router">Next to router</button>
+              <button type="button" data-v="Where I'll play">Where I'll play</button>
+            </div>
+            <div class="hint">Test both spots. If only the far one fails, the fix is Wi-Fi placement, not a new ISP.</div>
+          </div>
+          <div class="field">
+            <span class="lab" id="lab-band">Wi-Fi band</span>
+            <div class="seg" role="group" aria-labelledby="lab-band" data-pref="band">
+              <button type="button" data-v="5 GHz">5 GHz</button>
+              <button type="button" data-v="2.4 GHz">2.4 GHz</button>
+              <button type="button" data-v="Not sure">Not sure</button>
+            </div>
+            <div class="hint">On Android: Settings, Wi-Fi, tap the connected network and look for Frequency.</div>
+          </div>
+          <div class="field">
+            <label class="lab" for="ispName">ISP and plan</label>
+            <input class="text-in" id="ispName" placeholder="Filled in after detection. Add the plan, e.g. 100 Mbps fibre" autocomplete="off">
+          </div>
+          <div class="field">
+            <span class="lab" id="lab-len">Test length</span>
+            <div class="seg" role="group" aria-labelledby="lab-len" data-pref="preset">
+              <button type="button" data-v="quick">Quick, 1.5 min</button>
+              <button type="button" data-v="standard">Standard, 4 min</button>
+              <button type="button" data-v="long">Long, 11 min</button>
+            </div>
+            <div class="hint" id="presetHint"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Detected</h2>
+          <dl class="detected" id="detected">
+            <dt>Network</dt><dd id="detIsp">Checking</dd>
+            <dt>ISP places you in</dt><dd id="detColo">Checking</dd>
+            <dt>Connection</dt><dd id="detConn">Checking</dd>
+            <dt>Time</dt><dd id="detTime"></dd>
+          </dl>
+          <div class="warnline" id="cellWarn" hidden>This phone is on mobile data, not Wi-Fi. Connect to the Wi-Fi you want to test, or the result describes your SIM instead. A test uses about 200 MB of data.</div>
+          <div class="warnline" id="peakHint" hidden></div>
+        </div>
+
+        <div class="panel guide">
+          <details class="more">
+            <summary>How to judge an ISP with this</summary>
+            <ol>
+              <li>Run one test between 8:00 PM and 11:00 PM. Wireless home broadband often looks fine at noon and falls apart in the evening rush.</li>
+              <li>Test next to the router, then where the TV or laptop will sit. Same result in both spots means the ISP is the limit. A worse result far away means Wi-Fi.</li>
+              <li>Before signing up somewhere new, run it on a neighbour's connection from the same ISP, in the same building if you can.</li>
+              <li>Keep the screen on and this tab open. If the phone sleeps, the test stops, because the timings would be wrong.</li>
+              <li>Your phone stands in for the TV or laptop. Test in the same room, on the same band.</li>
+            </ol>
+          </details>
+          <details class="more">
+            <summary>What each check means</summary>
+            <ul id="metricGlossary"></ul>
+          </details>
+        </div>
+      </div>
+
+      <div id="progress" hidden>
+        <div class="panel">
+          <h2 id="progTitle">Running</h2>
+          <ol class="stages" id="stages"></ol>
+        </div>
+      </div>
+
+      <div id="result" hidden></div>
+    </section>
+
+    <section id="view-runs" role="tabpanel" aria-labelledby="tab-runs" hidden>
+      <div class="run-filter seg" id="runFilter" role="group" aria-label="Filter runs"></div>
+      <div id="cmpBox"></div>
+      <div id="runList"></div>
+      <div class="panel">
+        <h2>Keep or move your results</h2>
+        <p style="margin:0 0 4px;font-size:14px;color:var(--ink-2)">Runs live only in this browser on this phone. Export to keep a copy, or to merge runs from another phone.</p>
+        <div class="btn-row">
+          <button class="btn-sm" id="exportBtn" type="button">Export runs</button>
+          <button class="btn-sm" id="importBtn" type="button">Import runs</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="actionbar">
+  <div class="wrap" id="actionWrap">
+    <button class="btn btn-go" id="goBtn" type="button">Start test</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+'use strict';
+
+/* ------------------------------------------------------------------ config */
+
+const CF = 'https://speed.cloudflare.com';
+const STORE_KEY = 'cgcheck.runs.v1';
+const PREF_KEY = 'cgcheck.prefs.v1';
+
+// Seconds per stage.
+const PRESETS = {
+  quick:    { idle: 10, down: 8,  up: 6, soak: 50 },
+  standard: { idle: 15, down: 10, up: 8, soak: 180 },
+  long:     { idle: 15, down: 12, up: 8, soak: 600 },
+};
+
+// Ten probes a second. At a slower rate a phone's Wi-Fi naps between probes and adds up to 100 ms of its
+// own delay, which is not the line's fault and does not happen while a game is streaming.
+const PING_HZ = 10;
+const PING_TIMEOUT = 1000;   // a probe whose round trip exceeds this counts as no reply
+
+// Xbox Cloud Gaming reached India in November 2025. Better xCloud lists its India regions as Azure
+// Central India (Pune) and South India (Chennai). The streaming hosts themselves are handed out per
+// session, so the tool times Microsoft endpoints that sit in those same two Azure regions.
+const XCLOUD_TARGETS = [
+  { region: 'centralindia', name: 'Pune', long: 'Azure Central India, Pune', url: 'https://centralindia.tts.speech.microsoft.com/' },
+  { region: 'southindia', name: 'Chennai', long: 'Azure South India, Chennai', url: 'https://southindia.tts.speech.microsoft.com/' },
+  { region: 'southeastasia', name: 'Singapore', long: 'Azure Southeast Asia, for reference only', url: 'https://southeastasia.tts.speech.microsoft.com/', reference: true },
+];
+
+// Cloudflare reports the network number, not its name. Common Indian ones, so the ISP field fills itself.
+const ASN_NAMES = {
+  55836: 'Jio', 64049: 'Jio', 24560: 'Airtel', 45609: 'Airtel', 9498: 'Airtel', 24309: 'ACT Fibernet', 18209: 'ACT Fibernet',
+  17488: 'Hathway', 133982: 'Excitel', 9829: 'BSNL', 17813: 'MTNL', 45271: 'Vi', 55410: 'Vi', 38266: 'Vi',
+};
+
+// Pass bands. "low" means lower is better. Sources are listed in the glossary text below.
+const METRICS = [
+  { key: 'xrtt', name: 'Distance to Xbox India regions', sub: 'Round trip to the Azure data centres in Pune and Chennai, where Xbox runs its Indian cloud servers. The servers themselves are private', unit: 'ms', better: 'low', good: 40, ok: 75, max: 150, critical: true,
+    src: 'Better xCloud grades ping at 40 and 75 ms. NVIDIA sets a hard 80 ms limit for GeForce NOW.',
+    why: {
+      good: 'Close enough that input delay stays in the background.',
+      ok: 'Fine for story games. Shooters and fighting games will feel a beat behind.',
+      bad: 'Every press travels this far and back before you see it. Aiming and blocking will feel late.' } },
+  { key: 'jitter', name: 'Jitter', sub: 'How much the delay wobbles from one moment to the next', unit: 'ms', better: 'low', good: 10, ok: 30, max: 60, critical: true,
+    src: 'Cloudflare scores jitter under 10 ms as full marks. Better xCloud starts warning at 30 ms.',
+    why: {
+      good: 'Steady. The stream can play frames the moment they arrive.',
+      ok: 'The stream needs a bigger buffer to smooth this out, which adds delay.',
+      bad: 'The delay keeps changing, so frames arrive out of rhythm and the picture stutters. This is the usual failure on 5G and wireless home broadband.' } },
+  { key: 'spikes', name: 'Lag spikes', sub: 'Jumps of 50 ms or more above normal, or no reply, per minute', unit: '/min', better: 'low', good: 1, ok: 3, max: 12, critical: true,
+    src: 'No published standard exists for this. The limits are this tool\'s rule of thumb.',
+    why: {
+      good: 'Rare enough that a session goes by without a visible freeze.',
+      ok: 'Expect a short freeze or a blurry burst every so often.',
+      bad: 'Each spike is a visible freeze or smear. At this rate a session feels broken.' } },
+  { key: 'loss', name: 'Resent replies', sub: 'Probe replies the server sent twice. Rough: a reply that was only late gets resent too, so this reads high on a jittery line', unit: '%', better: 'low', good: 1, ok: 5, max: 12, critical: false, dp: 1,
+    src: 'Cloudflare scores loss under 1% as full marks and over 5% as zero.',
+    why: {
+      good: 'Almost nothing lost.',
+      ok: 'Some loss. The stream will blur or skip to recover.',
+      bad: 'Heavy loss. Expect smeared frames, freezes, and dropped sessions.' } },
+  { key: 'down', name: 'Download, worst moments', sub: 'The slowest 10% of seconds in a full-speed download. A stream needs this much all the time', unit: 'Mbps', better: 'high', good: 25, ok: 15, max: 150, critical: true,
+    src: 'NVIDIA asks for 25 Mbps for 1080p at 60 fps and 15 Mbps for 720p. Microsoft\'s own figure could not be confirmed.',
+    why: {
+      good: 'Enough for a 1080p stream. Anyone else streaming at the same time needs more on top.',
+      ok: 'Enough for 720p. A 1080p stream will drop resolution when the line dips.',
+      bad: 'Below 15 Mbps the stream drops resolution or stutters.' } },
+  { key: 'bloat', name: 'Lag when the line is busy', sub: 'Extra delay while a big download or upload runs', unit: 'ms', better: 'low', good: 10, ok: 50, max: 200, critical: false,
+    src: 'Cloudflare scores under 10 ms added as full marks and over 50 ms as zero.',
+    why: {
+      good: 'Someone else downloading will barely touch your game.',
+      ok: 'A big download in the house will make the game feel heavier.',
+      bad: 'When anyone else streams or downloads, your lag jumps by this much. The router or ISP queues too much data.' } },
+  { key: 'up', name: 'Upload', sub: 'Carries your inputs and voice chat', unit: 'Mbps', better: 'high', good: 5, ok: 3, max: 50, critical: false,
+    src: 'Weakly sourced. Guides quote about 5 Mbps for Xbox Cloud Gaming.',
+    why: {
+      good: 'Plenty for inputs and voice.',
+      ok: 'Enough for inputs. Voice chat may break up.',
+      bad: 'Too thin even for inputs and voice.' } },
+];
+const METRIC = Object.fromEntries(METRICS.map(m => [m.key, m]));
+
+/* ------------------------------------------------------------------ utils */
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let seq = 0;
+const bust = url => url + (url.includes('?') ? '&' : '?') + 'cg=' + (++seq) + '.' + Math.floor(Math.random() * 1e9);
+
+function quantile(arr, q) {
+  const a = arr.filter(v => v != null && isFinite(v)).sort((x, y) => x - y);
+  if (!a.length) return null;
+  const pos = (a.length - 1) * q;
+  const lo = Math.floor(pos), hi = Math.ceil(pos);
+  return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+}
+const median = arr => quantile(arr, 0.5);
+const round = (v, dp = 0) => v == null ? null : Math.round(v * 10 ** dp) / 10 ** dp;
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function fmtTime(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0');
+  const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${h}:${m} ${ap}`;
+}
+function isPeak(d) { const h = d.getHours(); return h >= 19; }
+
+function fmtVal(key, v) {
+  if (v == null) return '--';
+  const m = METRIC[key];
+  const dp = m && m.dp != null ? m.dp : (Math.abs(v) < 10 && m && (m.unit === '/min' || m.unit === 's/min' || m.unit === 'Mbps') ? 1 : 0);
+  return round(v, dp).toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+}
+
+function grade(key, v) {
+  const m = METRIC[key];
+  if (v == null || !m) return 'na';
+  if (m.better === 'low') return v <= m.good ? 'good' : v <= m.ok ? 'ok' : 'bad';
+  return v >= m.good ? 'good' : v >= m.ok ? 'ok' : 'bad';
+}
+
+const ICONS = {
+  good: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ok: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.2v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="8" cy="12.6" r="1.3" fill="currentColor"/></svg>',
+  bad: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  na: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 8h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+};
+const GRADE_WORD = { good: 'Good', ok: 'Borderline', bad: 'Fails', na: 'Not measured' };
+const stIcon = (g, sm) => `<span class="st-icon${sm ? ' sm' : ''}" data-g="${g}" role="img" aria-label="${GRADE_WORD[g]}">${ICONS[g]}</span>`;
+
+function toast(msg, ms = 2600) {
+  const t = $('toast'); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, ms);
+}
+
+/* ------------------------------------------------------------------ storage */
+
+function loadRuns() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; } }
+function saveRuns(runs) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(runs)); return true; }
+  catch { toast('Storage for this page is full. Export your runs, then delete old ones.', 5000); return false; }
+}
+function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch { return {}; } }
+function savePrefs(p) { localStorage.setItem(PREF_KEY, JSON.stringify(p)); }
+
+/* ------------------------------------------------------------------ measurement */
+
+try { performance.setResourceTimingBufferSize(20000); } catch {}
+performance.addEventListener && performance.addEventListener('resourcetimingbufferfull', () => performance.clearResourceTimings());
+
+let run = null; // the active run's state
+
+class Aborted extends Error {}
+function checkAbort() { if (!run || run.aborted) throw new Aborted(); }
+async function wait(ms) { checkAbort(); await sleep(ms); checkAbort(); }
+
+// Network-level round trip for a finished request, falling back to wall time.
+// Cloudflare reports its own processing time (cfSpeedWorker) and the server's TCP counters (cfL4) in Server-Timing.
+function readTiming(url, wall, tag, whole) {
+  const entries = performance.getEntriesByName(url);
+  const e = entries[entries.length - 1];
+  let rtt = wall;
+  if (whole && e && e.requestStart > 0 && e.responseEnd > e.requestStart) {
+    // Whole delivery on the wire: request sent to last byte, minus Cloudflare's own processing.
+    let v = e.responseEnd - e.requestStart;
+    const w = (e.serverTiming || []).find(x => x.name === 'cfSpeedWorker');
+    if (w && w.duration > 0 && w.duration < v) v -= w.duration;
+    const l4 = (e.serverTiming || []).find(x => x.name === 'cfL4');
+    if (l4 && run && run.stageKey) recordL4(l4.description, run.stageKey, 'bulk');
+    return Math.max(1, v);
+  }
+  if (e && e.requestStart > 0 && e.responseStart > e.requestStart) {
+    let v = e.responseStart - e.requestStart;
+    const st = e.serverTiming || [];
+    const worker = st.find(s => s.name === 'cfSpeedWorker') || st.find(s => s.name === 'cfRequestDuration');
+    if (worker && worker.duration > 0 && worker.duration < v) v -= worker.duration;
+    rtt = Math.max(1, v);
+    const l4 = st.find(s => s.name === 'cfL4');
+    if (l4 && run && run.stageKey) recordL4(l4.description, run.stageKey, tag === 'ping' ? 'ping' : 'bulk');
+  }
+  return rtt;
+}
+
+// Server-side TCP counters are cumulative per connection. Bulk downloads make Cloudflare send in
+// bursts that overfill the line and force resends, which says more about the test than the line. So
+// line loss only counts the stretch between two probe replies on one connection, when nothing bigger
+// than a probe went through it.
+function recordL4(desc, stage, kind) {
+  const q = new URLSearchParams(String(desc || '').replace(/^\?/, ''));
+  const cid = q.get('cid'), sent = +q.get('sent'), retrans = +q.get('retrans');
+  if (!cid || !isFinite(sent) || !isFinite(retrans)) return;
+  const last = run.l4last[cid];
+  run.l4last[cid] = { sent, retrans };
+  if (!last || sent < last.sent) return;
+  const ds = sent - last.sent, dr = Math.max(0, retrans - last.retrans);
+  const b = run.l4[stage] || (run.l4[stage] = { sent: 0, retrans: 0, bulkSent: 0, bulkRetrans: 0 });
+  if (kind === 'ping' && ds <= 60) { b.sent += ds; b.retrans += dr; }
+  else { b.bulkSent += ds; b.bulkRetrans += dr; }
+}
+function l4Loss(stages) {
+  let sent = 0, re = 0;
+  for (const t of stages) { const b = run && run.l4[t]; if (b) { sent += b.sent; re += b.retrans; } }
+  return { sent, retrans: re, pct: sent >= 200 ? re / sent * 100 : null };
+}
+function l4Bulk(stages) {
+  let sent = 0, re = 0;
+  for (const t of stages) { const b = run && run.l4[t]; if (b) { sent += b.bulkSent; re += b.bulkRetrans; } }
+  return { sent, retrans: re, pct: sent >= 300 ? re / sent * 100 : null };
+}
+
+// One latency probe to the Cloudflare edge. Returns ms, or null if dropped.
+// Aborts after 3 s of wall time, but judges the reply on network time, so a probe that sat in the
+// browser's queue behind other requests is not mistaken for a slow line.
+async function edgePing(timeout = 3000, tag = 'ping') {
+  const url = bust(`${CF}/__down?bytes=0`);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeout);
+  const t0 = performance.now();
+  try {
+    const r = await fetch(url, { cache: 'no-store', credentials: 'omit', signal: ctrl.signal });
+    await r.arrayBuffer();
+    const v = readTiming(url, performance.now() - t0, 'ping');
+    return v > PING_TIMEOUT ? null : v;
+  } catch { return null; }
+  finally { clearTimeout(timer); }
+}
+
+async function reachable() {
+  for (let i = 0; i < 3; i++) {
+    try { const r = await fetch(bust(`${CF}/__down?bytes=0`), { cache: 'no-store', credentials: 'omit' }); await r.arrayBuffer(); return true; }
+    catch { await sleep(500); }
+  }
+  return false;
+}
+
+// Opaque timing to a host that does not send CORS headers.
+async function opaquePing(base, timeout = 2000) {
+  const url = bust(base);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeout);
+  const t0 = performance.now();
+  try {
+    await fetch(url, { mode: 'no-cors', method: 'HEAD', cache: 'no-store', credentials: 'omit', signal: ctrl.signal });
+    return { ms: performance.now() - t0, ok: true };
+  } catch (e) {
+    const ms = performance.now() - t0;
+    return { ms, ok: false, aborted: ctrl.signal.aborted };
+  } finally { clearTimeout(timer); }
+}
+
+// Fire probes on a fixed clock, even while earlier ones are still out, so a stall shows as a run of late samples.
+async function pingLoop(seconds, sink, tag, hz = PING_HZ) {
+  const interval = 1000 / hz;
+  const start = performance.now();
+  const end = start + seconds * 1000;
+  const inflight = [];
+  let k = 0;
+  while (performance.now() < end) {
+    checkAbort();
+    const p = edgePing(PING_TIMEOUT, tag).then(v => { sink.push(v); pushTrace(v, tag); });
+    inflight.push(p);
+    k++;
+    const next = start + k * interval;
+    await wait(Math.max(0, next - performance.now()));
+  }
+  await Promise.all(inflight);
+}
+
+function jitterOf(samples) {
+  let sum = 0, n = 0;
+  for (let i = 1; i < samples.length; i++) {
+    const a = samples[i - 1], b = samples[i];
+    if (a != null && b != null) { sum += Math.abs(b - a); n++; }
+  }
+  return n ? sum / n : null;
+}
+
+// Spikes: probes 50 ms or more above the baseline median, or dropped. Bad probes within a second of each
+// other count as one spike, so the count does not depend on how often the page probes.
+function spikeStats(samples, baseline, hz = PING_HZ) {
+  if (baseline == null) return { events: 0, longestSec: 0 };
+  const thr = baseline + 50;
+  let events = 0, streak = 0, longest = 0, lastBad = -Infinity;
+  samples.forEach((v, i) => {
+    const bad = v == null || v > thr;
+    if (bad) { if (i - lastBad > hz) events++; lastBad = i; streak++; longest = Math.max(longest, streak); }
+    else streak = 0;
+  });
+  return { events, longestSec: longest / hz };
+}
+
+// Cloudflare hides its geo headers from other sites, so the ISP name comes from ipinfo.io (open to any site).
+async function fetchMeta() {
+  try {
+    const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 5000);
+    const r = await fetch('https://ipinfo.io/json', { cache: 'no-store', credentials: 'omit', signal: ctrl.signal });
+    if (!r.ok) return null;
+    const j = await r.json();
+    const m = /^AS(\d+)\s*(.*)$/.exec(j.org || '');
+    const asn = m ? +m[1] : null;
+    const full = m ? m[2] : (j.org || null);
+    return { asn, org: ASN_NAMES[asn] || full, orgFull: full, city: j.city || null, region: j.region || null };
+  } catch { return null; }
+}
+
+function connInfo() {
+  const c = navigator.connection;
+  if (!c) return null;
+  return { type: c.type || null, effectiveType: c.effectiveType || null, downlink: c.downlink ?? null, rtt: c.rtt ?? null };
+}
+
+/* ---------- stages */
+
+async function stageIdle(sec, R) {
+  const samples = [];
+  setStage('idle', 'Baseline latency', 'Line idle, probing ten times a second');
+  const t0 = performance.now();
+  const tick = setInterval(() => setProgress('idle', (performance.now() - t0) / (sec * 1000)), 300);
+  try { await pingLoop(sec, samples, 'idle'); } finally { clearInterval(tick); }
+  R.raw.idle = samples;
+}
+
+async function stageXcloud(R) {
+  const out = [];
+  if (!XCLOUD_TARGETS.length) { R.raw.xcloud = out; return; }
+  setStage('xcloud', 'Timing Xbox India regions', 'Azure Pune and Chennai, Singapore for reference');
+  let i = 0;
+  for (const t of XCLOUD_TARGETS) {
+    checkAbort();
+    const times = [], fails = [];
+    for (let k = 0; k < 12; k++) {
+      checkAbort();
+      const r = await opaquePing(t.url);
+      if (r.ok) times.push(r.ms); else fails.push(r);
+      if (r.ok && k >= 2) pushTrace(r.ms, 'xcloud');
+      await wait(20);
+    }
+    const warm = times.slice(2); // the first two include DNS, TCP and TLS setup
+    out.push({ region: t.region, name: t.name, long: t.long, reference: !!t.reference, median: median(warm), min: warm.length ? Math.min(...warm) : null, ok: warm.length, fail: fails.length });
+    i++;
+    setProgress('xcloud', i / XCLOUD_TARGETS.length);
+    showLive(median(warm), 'ms', t.name);
+  }
+  R.raw.xcloud = out;
+}
+
+async function stageDownload(sec, R) {
+  setStage('down', 'Download speed', 'Three parallel streams, latency probes running');
+  let bytes = 0, stop = false;
+  const ctrls = new Set();
+  const t0 = performance.now();
+  const windows = [];
+  let lastB = 0, lastT = t0, warmB = null, warmT = null;
+  const sampler = setInterval(() => {
+    const now = performance.now();
+    const dt = (now - lastT) / 1000;
+    if (dt > 0) {
+      const mbps = (bytes - lastB) * 8 / 1e6 / dt;
+      if (now - t0 > 2000) windows.push(mbps);
+      showLive(mbps, 'Mbps', 'Download');
+    }
+    if (warmB == null && now - t0 >= 2000) { warmB = bytes; warmT = now; }
+    lastB = bytes; lastT = now;
+    setProgress('down', (now - t0) / (sec * 1000));
+  }, 500);
+  const worker = async () => {
+    let size = 1e6;
+    while (!stop && !run.aborted) {
+      const ctrl = new AbortController(); ctrls.add(ctrl);
+      try {
+        const u = bust(`${CF}/__down?bytes=${size}`);
+        const r = await fetch(u, { cache: 'no-store', credentials: 'omit', signal: ctrl.signal });
+        const rd = r.body.getReader();
+        for (;;) { const { done, value } = await rd.read(); if (done) break; bytes += value.byteLength; }
+        readTiming(u, 0, 'bulk');
+        size = Math.min(size * 2, 50e6);
+      } catch { if (!stop) await sleep(150); }
+      finally { ctrls.delete(ctrl); }
+    }
+  };
+  const loaded = [];
+  // Three workers: Chrome allows 6 connections to this host, and the probes need free ones.
+  const workers = [worker(), worker(), worker()];
+  try {
+    await sleep(1500);
+    await pingLoop(Math.max(1, sec - 1.5), loaded, 'load');
+  } finally {
+    stop = true; ctrls.forEach(c => c.abort()); clearInterval(sampler);
+    await Promise.allSettled(workers);
+  }
+  checkAbort();
+  const endT = performance.now();
+  const sustained = warmT != null && endT > warmT ? (bytes - warmB) * 8 / 1e6 / ((endT - warmT) / 1000) : null;
+  R.raw.down = { sustained, low: quantile(windows, 0.1), peak: quantile(windows, 0.9), bytes, loaded };
+}
+
+let upPayload = null;
+async function stageUpload(sec, R) {
+  setStage('up', 'Upload speed', 'Three parallel streams');
+  if (!upPayload) { upPayload = new Uint8Array(16e6); for (let i = 0; i < upPayload.length; i += 4096) upPayload[i] = i & 255; }
+  let stop = false; const ctrls = new Set(); const t0 = performance.now();
+  const done = [];
+  const tick = setInterval(() => setProgress('up', (performance.now() - t0) / (sec * 1000)), 300);
+  const worker = async () => {
+    let size = 5e5;
+    while (!stop && !run.aborted) {
+      const ctrl = new AbortController(); ctrls.add(ctrl);
+      const s = performance.now();
+      try {
+        const r = await fetch(bust(`${CF}/__up`), { method: 'POST', body: upPayload.subarray(0, size), cache: 'no-store', credentials: 'omit', signal: ctrl.signal });
+        await r.arrayBuffer();
+        const e = performance.now();
+        done.push({ s: s - t0, e: e - t0, bytes: size });
+        const recent = done.filter(d => d.e >= e - t0 - 2000);
+        const span = Math.max(500, e - t0 - Math.min(...recent.map(d => d.s)));
+        showLive(recent.reduce((a, d) => a + d.bytes, 0) * 8 / 1e6 / (span / 1000), 'Mbps', 'Upload');
+        if (e - s < 1200) size = Math.min(size * 2, 16e6);
+      } catch { if (!stop) await sleep(150); }
+      finally { ctrls.delete(ctrl); }
+    }
+  };
+  const loaded = [];
+  const workers = [worker(), worker(), worker()];
+  try {
+    await sleep(1500);
+    await pingLoop(Math.max(1, sec - 1.5), loaded, 'load');
+  } finally {
+    stop = true; ctrls.forEach(c => c.abort()); clearInterval(tick);
+    await Promise.allSettled(workers);
+  }
+  checkAbort();
+  // Throughput over completed requests after a 1 s warm-up.
+  const warm = done.filter(d => d.s >= 1000);
+  const set = warm.length >= 2 ? warm : done;
+  let mbps = null;
+  if (set.length) {
+    const first = Math.min(...set.map(d => d.s)), last = Math.max(...set.map(d => d.e));
+    const b = set.reduce((a, d) => a + d.bytes, 0);
+    mbps = last > first ? b * 8 / 1e6 / ((last - first) / 1000) : null;
+  }
+  R.raw.up = { mbps, loaded, requests: done.length };
+}
+
+async function stageSoak(sec, R) {
+  setStage('soak', 'Stability soak', 'Probing ten times a second, watching for jitter, spikes and loss');
+  const samples = [];
+  const t0 = performance.now();
+  const tick = setInterval(() => setProgress('soak', (performance.now() - t0) / (sec * 1000)), 500);
+  try { await pingLoop(sec, samples, 'soak'); } finally { clearInterval(tick); }
+  R.raw.soak = samples;
+}
+
+/* ---------- scoring */
+
+function compute(R) {
+  const idle = R.raw.idle || [], soak = R.raw.soak || [];
+  const quiet = idle.concat(soak);
+  const quietSec = quiet.length / PING_HZ;
+  const base = median(quiet);
+  // Idle and soak run minutes apart, so a spike streak must not join across them.
+  const a = spikeStats(idle, base), b = spikeStats(soak, base);
+  const spikesPerMin = base != null && quietSec ? (a.events + b.events) / (quietSec / 60) : null;
+  const jitter = (() => {
+    const ja = jitterOf(idle), jb = jitterOf(soak);
+    if (ja == null) return jb; if (jb == null) return ja;
+    return (ja * idle.length + jb * soak.length) / quiet.length;
+  })();
+  const dropPct = quiet.length ? quiet.filter(v => v == null).length / quiet.length * 100 : null;
+  const tcp = R.l4 || { pct: null };
+  const lossPct = tcp.pct != null ? tcp.pct : dropPct;
+
+  const xc = (R.raw.xcloud || []).filter(x => x.median != null && !x.reference).sort((x, y) => x.median - y.median);
+  const nearest = xc[0] || null;
+
+  // A probe with no reply while the line was busy counts as 1 s, so the worst lines cannot come out unmeasured.
+  const busy = arr => arr && arr.length ? median(arr.map(v => v == null ? PING_TIMEOUT : v)) : null;
+  const downLoaded = R.raw.down ? busy(R.raw.down.loaded) : null;
+  const upLoaded = R.raw.up ? busy(R.raw.up.loaded) : null;
+  const idleP50 = median(idle);
+  const jitterBad = jitter != null && jitter > METRIC.jitter.ok;
+  const bloat = !jitterBad && idleP50 != null && downLoaded != null ? Math.max(0, Math.max(downLoaded, upLoaded ?? 0) - idleP50) : null;
+  const ok = quiet.filter(v => v != null);
+
+  const m = {
+    xrtt: nearest ? nearest.median : null,
+    jitter,
+    spikes: spikesPerMin,
+    loss: lossPct,
+    down: R.raw.down ? R.raw.down.low : null,
+    bloat,
+    up: R.raw.up ? R.raw.up.mbps : null,
+  };
+  const grades = {};
+  for (const k of Object.keys(m)) grades[k] = grade(k, m[k]);
+
+  const detail = {
+    edgeP50: base, edgeMin: ok.length ? Math.min(...ok) : null,
+    edgeP95: quantile(quiet, 0.95), edgeP99: quantile(quiet, 0.99), edgeMax: ok.length ? Math.max(...ok) : null,
+    spikeThreshold: base != null ? base + 50 : null, longestSpikeSec: Math.max(a.longestSec, b.longestSec), spikeEvents: a.events + b.events,
+    probes: quiet.length, dropPct, lossMethod: tcp.pct != null ? 'tcp' : 'drops', tcpSent: tcp.sent ?? null,
+    downRetransPct: R.l4down ? R.l4down.pct : null,
+    downSustained: R.raw.down ? R.raw.down.sustained : null, downPeak: R.raw.down ? R.raw.down.peak : null, downBytes: R.raw.down ? R.raw.down.bytes : null,
+    downLoadedP50: downLoaded, upLoadedP50: upLoaded, idleP50,
+    bloatNote: jitterBad ? 'Not scored. The line already wobbles this much when idle, so extra delay under load cannot be separated out.' : null,
+    regions: (R.raw.xcloud || []).map(x => ({ region: x.region, name: x.name, long: x.long, reference: x.reference, median: x.median, min: x.min, ok: x.ok })),
+    nearest: nearest ? nearest.name : null,
+  };
+  return { metrics: m, grades, detail, verdict: verdictOf(m, grades) };
+}
+
+function verdictOf(m, grades) {
+  const missing = METRICS.filter(x => x.critical && grades[x.key] === 'na');
+  const crit = METRICS.filter(x => x.critical && grades[x.key] !== 'na');
+  const second = METRICS.filter(x => !x.critical && grades[x.key] !== 'na');
+  const badC = crit.filter(x => grades[x.key] === 'bad');
+  const okC = crit.filter(x => grades[x.key] === 'ok');
+  const badS = second.filter(x => grades[x.key] === 'bad');
+  const okS = second.filter(x => grades[x.key] === 'ok');
+  let level, title;
+  if (badC.length) { level = 'bad'; title = 'Not ready for cloud gaming'; }
+  else if (okC.length || badS.length) { level = 'ok'; title = 'Playable, with hitches'; }
+  else if (missing.length) { level = 'ok'; title = 'Incomplete, run it again'; }
+  else { level = 'good'; title = 'Ready for cloud gaming'; }
+  const weakest = badC[0] || badS[0] || okC[0] || okS[0] || null;
+  return { level, title, weakest: weakest ? weakest.key : null, missing: missing.map(x => x.key) };
+}
+
+/* ------------------------------------------------------------------ trace drawing */
+
+const trace = { samples: [], dirty: false };
+function pushTrace(v, tag) {
+  trace.samples.push({ v, tag, t: performance.now() });
+  if (trace.samples.length > 4000) trace.samples.splice(0, trace.samples.length - 4000);
+  if (tag !== 'xcloud' && v != null && run) {
+    const hint = tag === 'load' ? 'Latency, line busy' : 'Latency';
+    if (run.stageKey !== 'down' && run.stageKey !== 'up') showLive(v, 'ms', hint);
+  }
+  scheduleDraw();
+}
+function scheduleDraw() {
+  if (trace.dirty) return;
+  trace.dirty = true;
+  requestAnimationFrame(() => { trace.dirty = false; drawTrace(); });
+}
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+let traceGeom = null;
+function drawTrace() {
+  const c = $('trace');
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const w = c.clientWidth, h = c.clientHeight;
+  if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+  const g = c.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  const top = 6, bottom = h - 4, plotH = bottom - top;
+  const maxMs = 200;
+  const y = v => bottom - Math.min(v, maxMs) / maxMs * plotH;
+  const grid = cssVar('--display-grid'), lab = cssVar('--display-2');
+  g.font = '11px Barlow, system-ui, sans-serif';
+  g.textBaseline = 'bottom';
+  for (const ms of [50, 100, 150]) {
+    g.strokeStyle = grid; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0, Math.round(y(ms)) + 0.5); g.lineTo(w, Math.round(y(ms)) + 0.5); g.stroke();
+    g.fillStyle = lab; g.fillText(ms + ' ms', 2, y(ms) - 2);
+  }
+  g.strokeStyle = grid; g.beginPath(); g.moveTo(0, bottom + 0.5); g.lineTo(w, bottom + 0.5); g.stroke();
+
+  const pitch = 4, barW = 2;
+  const n = Math.floor((w - 34) / pitch);
+  const pts = trace.samples.slice(-n);
+  const x0 = w - pts.length * pitch;
+  const med = median(trace.samples.filter(s => s.tag === 'idle' || s.tag === 'soak').map(s => s.v)) ?? median(pts.map(s => s.v));
+  const colGood = cssVar('--d-good'), colOk = cssVar('--d-ok'), colBad = cssVar('--d-bad');
+  pts.forEach((s, i) => {
+    const x = x0 + i * pitch;
+    if (s.v == null) {
+      g.fillStyle = colBad;
+      g.fillRect(x, top, barW, plotH);
+      return;
+    }
+    let col = colGood;
+    if (s.tag === 'xcloud') col = s.v <= 40 ? colGood : s.v <= 75 ? colOk : colBad;
+    else if (med != null && s.v > med + 50) col = colBad;
+    else if (s.v > 75 || (med != null && s.v > med + 20)) col = colOk;
+    g.fillStyle = col;
+    const yy = y(s.v);
+    const hgt = Math.max(2, bottom - yy);
+    // rounded data end, anchored to the baseline
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, yy, barW, hgt, [1, 1, 0, 0]); else g.rect(x, yy, barW, hgt);
+    g.fill();
+    if (s.v > maxMs) { g.fillStyle = colBad; g.fillRect(x - 1, top, barW + 2, 3); }
+  });
+  traceGeom = { x0, pitch, pts };
+  const valid = pts.filter(s => s.v != null).map(s => s.v);
+  c.setAttribute('aria-label', valid.length ? `Live latency trace. Last ${pts.length} probes, median ${Math.round(median(valid))} ms, highest ${Math.round(Math.max(...valid))} ms, ${pts.length - valid.length} dropped.` : 'Live latency trace. No samples yet.');
+}
+function traceHover(ev) {
+  if (!traceGeom || !traceGeom.pts.length) return;
+  const c = $('trace'); const rect = c.getBoundingClientRect();
+  const x = ev.clientX - rect.left;
+  const i = Math.floor((x - traceGeom.x0) / traceGeom.pitch);
+  const s = traceGeom.pts[Math.max(0, Math.min(traceGeom.pts.length - 1, i))];
+  if (!s || x < traceGeom.x0 - 8) { $('traceTip').hidden = true; return; }
+  const tag = { idle: 'idle', session: 'stream running', soak: 'soak', stream: 'stream running', load: 'line busy', xcloud: 'Xbox region' }[s.tag] || '';
+  const tip = $('traceTip');
+  tip.textContent = s.v == null ? `Dropped, ${tag}` : `${Math.round(s.v)} ms, ${tag}`;
+  tip.style.left = Math.max(50, Math.min(rect.width - 50, x)) + 'px';
+  tip.hidden = false;
+}
+
+/* ------------------------------------------------------------------ UI: setup */
+
+const prefs = Object.assign({ place: 'Current flat', spot: 'Where I\'ll play', band: '5 GHz', preset: 'standard', placeOther: '', ispName: '' }, loadPrefs());
+let detected = { meta: null, conn: null };
+
+function bindSeg() {
+  document.querySelectorAll('.seg[data-pref]').forEach(seg => {
+    const key = seg.dataset.pref;
+    const sync = () => seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === prefs[key])));
+    seg.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      prefs[key] = b.dataset.v; savePrefs(prefs); sync(); afterPrefChange();
+    });
+    sync();
+  });
+  $('placeOther').value = prefs.placeOther || '';
+  $('placeOther').addEventListener('input', e => { prefs.placeOther = e.target.value; savePrefs(prefs); });
+  $('ispName').value = prefs.ispName || '';
+  $('ispName').addEventListener('input', e => { prefs.ispName = e.target.value; prefs.ispAuto = false; savePrefs(prefs); });
+  afterPrefChange();
+}
+function afterPrefChange() {
+  $('placeOther').hidden = prefs.place !== 'Other';
+  const p = PRESETS[prefs.preset];
+  const total = p.idle + p.down + p.up + p.soak + XCLOUD_TARGETS.length * 1.5;
+  const mins = Math.round(total / 60 * 2) / 2;
+  const hints = {
+    quick: 'A first look. Too short to catch occasional spikes.',
+    standard: 'Good enough to compare two ISPs or two rooms.',
+    long: 'Catches the evening wobble. Run this one between 8:00 PM and 11:00 PM.',
+  };
+  $('presetHint').textContent = `About ${mins} minutes. ${hints[prefs.preset]}`;
+}
+
+async function detect() {
+  const now = new Date();
+  $('detTime').textContent = fmtTime(now) + (isPeak(now) ? ', evening peak' : '');
+  const ph = $('peakHint');
+  if (!isPeak(now)) { ph.hidden = false; ph.textContent = 'It is outside the evening peak. A pass now is a good sign, but only a pass between 8:00 PM and 11:00 PM settles it.'; }
+  else ph.hidden = true;
+  detected.conn = connInfo();
+  const c = detected.conn;
+  if (c) {
+    const parts = [];
+    if (c.type) parts.push(c.type === 'wifi' ? 'Wi-Fi' : c.type === 'cellular' ? 'Mobile data' : c.type);
+    else parts.push('Type hidden by this browser');
+    $('detConn').textContent = parts.join(', ');
+    $('cellWarn').hidden = c.type !== 'cellular';
+  } else {
+    $('detConn').textContent = 'Not reported by this browser';
+  }
+  const meta = await fetchMeta();
+  detected.meta = meta;
+  if (meta) {
+    $('detIsp').textContent = `${meta.org || 'Network'}${meta.asn ? ' (AS' + meta.asn + ')' : ''}`;
+    $('detColo').textContent = meta.city ? `${meta.city}${meta.region ? ', ' + meta.region : ''}, roughly` : 'Unknown';
+    const label = meta.org || (meta.asn ? 'AS' + meta.asn : '');
+    if (!prefs.ispName || prefs.ispAuto) { prefs.ispName = label; prefs.ispAuto = true; $('ispName').value = prefs.ispName; savePrefs(prefs); }
+    $('dIdleSub').textContent = `Connected through ${meta.org || 'your ISP'}. Checks distance to Xbox's Indian data centres, jitter, lag spikes, packet loss, and speed.`;
+  } else {
+    $('detIsp').textContent = 'Could not look it up';
+    $('detColo').textContent = 'Unknown';
+  }
+}
+
+function buildGlossary() {
+  $('metricGlossary').innerHTML = METRICS.map(m => {
+    const dir = m.better === 'low' ? `${m.good} ${m.unit} or less is good, over ${m.ok} ${m.unit} fails` : `${m.good} ${m.unit} or more is good, under ${m.ok} ${m.unit} fails`;
+    return `<li><b>${escapeHtml(m.name)}.</b> ${escapeHtml(m.sub)}. ${escapeHtml(dir)}.${m.critical ? '' : ' Counts as a caveat, not a fail on its own.'} <span style="color:var(--muted)">${escapeHtml(m.src)}</span></li>`;
+  }).join('');
+}
+
+/* ------------------------------------------------------------------ UI: running */
+
+const STAGES = [
+  { key: 'idle', title: 'Baseline latency', sub: 'Line idle' },
+  { key: 'xcloud', title: 'Distance to Xbox India regions', sub: 'Pune, Chennai, and Singapore for reference' },
+  { key: 'down', title: 'Download speed', sub: 'With lag measured while busy' },
+  { key: 'up', title: 'Upload speed', sub: 'With lag measured while busy' },
+  { key: 'soak', title: 'Stability soak', sub: 'Watching for jitter, spikes and loss' },
+];
+
+function renderStages() {
+  $('stages').innerHTML = STAGES.map((s, i) => `
+    <li data-key="${s.key}" data-state="${s.key === 'xcloud' && !XCLOUD_TARGETS.length ? 'skip' : 'wait'}">
+      <span class="n">${i + 1}</span>
+      <span class="t">${escapeHtml(s.title)}<small>${escapeHtml(s.key === 'xcloud' && !XCLOUD_TARGETS.length ? 'Skipped, no regions configured' : s.sub)}</small><div class="bar"><span></span></div></span>
+      <span class="r"></span>
+    </li>`).join('');
+}
+function stageEl(key) { return document.querySelector(`#stages li[data-key="${key}"]`); }
+function setStage(key, title, sub) {
+  if (run.stageKey && run.stageKey !== key) finishStage(run.stageKey);
+  run.stageKey = key;
+  const el = stageEl(key); if (el) el.dataset.state = 'run';
+  $('dStage').textContent = title;
+  $('dStageSub').textContent = sub || '';
+  $('dFootR').textContent = key === 'down' || key === 'up' ? 'Bars show latency while busy' : 'Latency, ms';
+}
+function setProgress(key, f) {
+  const el = stageEl(key); if (!el) return;
+  el.querySelector('.bar > span').style.width = Math.max(0, Math.min(1, f)) * 100 + '%';
+}
+function finishStage(key, text) {
+  const el = stageEl(key); if (!el) return;
+  el.dataset.state = 'done';
+  el.querySelector('.bar > span').style.width = '100%';
+  if (text) el.querySelector('.r').textContent = text;
+}
+function showLive(v, unit, sub) {
+  if (v == null) return;
+  $('dVal').textContent = unit === 'Mbps' ? (v >= 100 ? Math.round(v) : round(v, 1)) : Math.round(v);
+  $('dUnit').textContent = unit;
+  $('dValSub').textContent = sub || '';
+}
+
+let cellularOk = false;
+async function startRun() {
+  if (run) return;
+  if (detected.conn && detected.conn.type === 'cellular' && !cellularOk) {
+    cellularOk = true;
+    const b = $('goBtn'); if (b) b.textContent = 'On mobile data. Tap again to test anyway';
+    $('cellWarn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  $('errBox').hidden = true;
+  const preset = PRESETS[prefs.preset];
+  const startedAt = new Date();
+  run = { aborted: false, stageKey: null, reason: null, l4: {}, l4last: {} };
+  try { performance.clearResourceTimings(); } catch {}
+  window.scrollTo({ top: 0 });
+  trace.samples = [];
+  $('setup').hidden = true; $('result').hidden = true; $('progress').hidden = false;
+  $('dIdle').hidden = true; $('dLive').hidden = false;
+  $('progTitle').textContent = 'Running. Keep this screen on.';
+  renderStages();
+  setAction('running');
+  try { run.wake = await navigator.wakeLock?.request('screen'); } catch {}
+
+  const R = { raw: {} };
+  try {
+    if (!detected.meta) detected.meta = await fetchMeta();
+    if (!(await reachable())) throw new Error('unreachable');
+    await stageIdle(preset.idle, R);
+    finishStage('idle', Math.round(median(R.raw.idle) ?? 0) + ' ms');
+    await stageXcloud(R);
+    if (XCLOUD_TARGETS.length) {
+      const best = (R.raw.xcloud || []).filter(x => x.median != null).sort((a, b) => a.median - b.median)[0];
+      finishStage('xcloud', best ? Math.round(best.median) + ' ms' : 'No reply');
+    }
+    await stageDownload(preset.down, R);
+    finishStage('down', R.raw.down.sustained != null ? Math.round(R.raw.down.sustained) + ' Mbps' : '--');
+    await stageUpload(preset.up, R);
+    finishStage('up', R.raw.up.mbps != null ? round(R.raw.up.mbps, 1) + ' Mbps' : '--');
+    await stageSoak(preset.soak, R);
+    finishStage('soak', 'Done');
+    R.l4 = l4Loss(['idle', 'soak']);
+    R.l4down = l4Bulk(['down']);
+  } catch (e) {
+    const reason = run.reason;
+    endRun();
+    if (e instanceof Aborted) {
+      showError(reason || 'Test stopped. Nothing was saved.');
+    } else if (e && e.message === 'unreachable') {
+      showError('Could not reach speed.cloudflare.com, the test server. Check the phone is online. Private DNS or an ad blocker can also block it.');
+    } else {
+      showError('The test hit an error and stopped: ' + (e && e.message ? e.message : e));
+      console.error(e);
+    }
+    return;
+  }
+
+  const scored = compute(R);
+  const record = {
+    id: 'r' + startedAt.getTime().toString(36) + Math.floor(Math.random() * 1e4).toString(36),
+    v: 2,
+    ts: startedAt.toISOString(),
+    peak: isPeak(startedAt),
+    place: prefs.place === 'Other' ? (prefs.placeOther || 'Other') : prefs.place,
+    spot: prefs.spot, band: prefs.band,
+    isp: prefs.ispName || (detected.meta && detected.meta.org) || 'Unknown ISP',
+    meta: detected.meta ? { asn: detected.meta.asn, org: detected.meta.org, orgFull: detected.meta.orgFull, city: detected.meta.city } : null,
+    conn: detected.conn,
+    preset: prefs.preset,
+    metrics: scored.metrics, grades: scored.grades, detail: scored.detail, verdict: scored.verdict,
+    trace: downsampleTrace(),
+  };
+  const runs = loadRuns(); runs.unshift(record); saveRuns(runs);
+  endRun();
+  renderResult(record);
+  updateRunCount();
+}
+
+function downsampleTrace() {
+  const s = trace.samples.filter(x => x.tag !== 'xcloud').map(x => x.v == null ? -1 : Math.round(x.v));
+  if (s.length <= 600) return s;
+  const out = [], step = s.length / 600;
+  for (let i = 0; i < 600; i++) {
+    const seg = s.slice(Math.floor(i * step), Math.floor((i + 1) * step));
+    out.push(seg.includes(-1) ? -1 : Math.max(...seg));
+  }
+  return out;
+}
+
+function stopRun(reason) {
+  if (!run) return;
+  run.aborted = true;
+  run.reason = reason || null;
+}
+function endRun() {
+  try { run && run.wake && run.wake.release(); } catch {}
+  run = null;
+  $('progress').hidden = true;
+  setAction('idle');
+}
+function showError(msg) {
+  $('errBox').textContent = msg; $('errBox').hidden = false;
+  $('setup').hidden = false; $('dIdle').hidden = false; $('dLive').hidden = true;
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && run) stopRun('The screen turned off or you switched apps, so the test stopped. Timings taken in the background are unreliable. Keep this tab on screen until it finishes.');
+});
+
+function setAction(state, rec) {
+  const w = $('actionWrap');
+  if (state === 'running') {
+    w.innerHTML = '<button class="btn btn-stop" id="stopBtn" type="button">Stop test</button>';
+    $('stopBtn').onclick = () => stopRun('Test stopped. Nothing was saved.');
+  } else if (state === 'result') {
+    w.innerHTML = '<button class="btn btn-2" id="shareBtn" type="button">Share</button><button class="btn btn-go" id="againBtn" type="button">Test again</button>';
+    $('againBtn').onclick = () => { $('result').hidden = true; $('setup').hidden = false; $('dIdle').hidden = false; $('dLive').hidden = true; setAction('idle'); window.scrollTo({ top: 0 }); };
+    $('shareBtn').onclick = () => shareRun(rec);
+  } else {
+    w.innerHTML = '<button class="btn btn-go" id="goBtn" type="button">Start test</button>';
+    $('goBtn').onclick = startRun;
+  }
+}
+
+/* ------------------------------------------------------------------ UI: result */
+
+function bandHtml(key, v) {
+  const m = METRIC[key];
+  if (v == null) return '';
+  const max = m.max;
+  const pct = x => Math.max(0, Math.min(100, x / max * 100));
+  let zones;
+  if (m.better === 'low') zones = [['good', pct(m.good)], ['ok', pct(m.ok) - pct(m.good)], ['bad', 100 - pct(m.ok)]];
+  else zones = [['bad', pct(m.ok)], ['ok', pct(m.good) - pct(m.ok)], ['good', 100 - pct(m.good)]];
+  const marker = pct(v);
+  const lo = m.better === 'low' ? m.good : m.ok, hi = m.better === 'low' ? m.ok : m.good;
+  return `<div class="band" aria-hidden="true">${zones.map(([z, w]) => `<span class="z-${z}" style="width:${w}%"></span>`).join('')}<span class="mk" style="left:${marker}%"></span></div>
+    <div class="band-scale" aria-hidden="true"><span>0</span><span>${lo} / ${hi} ${escapeHtml(m.unit)}</span><span>${max}${v > max ? '+' : ''}</span></div>`;
+}
+
+function metricRow(rec, key) {
+  const m = METRIC[key];
+  const v = rec.metrics[key];
+  const g = rec.grades[key];
+  let extra = key === 'xrtt' && rec.detail && rec.detail.nearest ? ` Nearest: ${escapeHtml(rec.detail.nearest)}.` : '';
+  const sub = key === 'loss' && rec.detail && rec.detail.lossMethod === 'drops' ? 'Probes with no reply within 1 second. The server counters were missing on this run' : m.sub;
+  return `<li class="metric">
+    <div class="m-head">${stIcon(g, true)}<span class="m-name">${escapeHtml(m.name)}<small>${escapeHtml(sub)}</small></span>
+      <span class="m-val">${v == null ? '--' : (key === 'bloat' ? '+' : '') + fmtVal(key, v)}<span class="u">${escapeHtml(m.unit)}</span></span></div>
+    ${bandHtml(key, v)}
+    <p class="m-why">${v == null ? escapeHtml((key === 'bloat' && rec.detail && rec.detail.bloatNote) || 'Not measured on this run.') : escapeHtml(m.why[g] || '')}${extra}</p>
+  </li>`;
+}
+
+function verdictHtml(rec) {
+  const v = rec.verdict;
+  const d = new Date(rec.ts);
+  const weak = v.weakest ? METRIC[v.weakest] : null;
+  let line;
+  const miss = (v.missing || []).map(k => METRIC[k].name.toLowerCase());
+  if (v.level === 'good') line = 'Every check passed. This connection can carry a 1080p cloud stream.';
+  else if (!weak && miss.length) line = `Everything measured passed, but ${miss.join(' and ')} could not be measured, so this is not a pass yet.`;
+  else if (weak) line = `Weakest link: ${weak.name.toLowerCase()}, ${(v.weakest === 'bloat' ? '+' : '') + fmtVal(v.weakest, rec.metrics[v.weakest])} ${weak.unit}. ${weak.why[rec.grades[v.weakest]]}`;
+  else line = '';
+  return `<div class="verdict" data-level="${v.level}">
+    <div class="row">${stIcon(v.level)}<div><h2>${escapeHtml(v.title)}</h2><p>${escapeHtml(line)}</p></div></div>
+    <div class="meta">
+      <span class="chip">${escapeHtml(rec.place)}</span><span class="chip">${escapeHtml(rec.spot)}</span><span class="chip">${escapeHtml(rec.band)}</span>
+      <span class="chip">${escapeHtml(rec.isp)}</span>${rec.peak ? '<span class="chip peak">Evening peak</span>' : '<span class="chip">Off-peak</span>'}
+      <span class="chip">${escapeHtml(fmtTime(d))}</span>${(rec.v || 1) < 2 ? '<span class="chip">Old version, loss and stutter overstated</span>' : ''}
+    </div>
+  </div>`;
+}
+
+function detailTable(rec) {
+  const d = rec.detail || {};
+  const f = (v, u, dp = 0) => v == null ? '--' : `${round(v, dp)} ${u}`;
+  const rows = [
+    ['Network', rec.meta ? `${rec.meta.orgFull || rec.meta.org || '?'}${rec.meta.asn ? ', AS' + rec.meta.asn : ''}` : '--'],
+    ['ISP places you in, roughly', rec.meta && rec.meta.city ? rec.meta.city : '--'],
+    ['Latency to Cloudflare, median', f(d.edgeP50, 'ms')],
+    ['Best / 95th pct / 99th pct / worst', [d.edgeMin, d.edgeP95, d.edgeP99, d.edgeMax].map(v => v == null ? '--' : Math.round(v)).join(' / ') + ' ms'],
+    ['Spike threshold used', f(d.spikeThreshold, 'ms')],
+    ['Longest bad stretch', f(d.longestSpikeSec, 's', 1)],
+    ['Probes sent', d.probes ?? '--'],
+    ['Probes with no reply in 1 s', f(d.dropPct, '%', 1)],
+    ['Packet loss measured by', d.lossMethod === 'tcp' ? `server resends on probe replies, ${d.tcpSent ?? '?'} packets watched` : 'probes with no reply, server counters missing'],
+    ['Download, sustained', f(d.downSustained, 'Mbps')],
+    ['Download, fast 10% of seconds', f(d.downPeak, 'Mbps')],
+    ['Resends during full-speed download', d.downRetransPct == null ? '--' : `${round(d.downRetransPct, 1)} %, caused by the test itself`],
+    ['Data used by download test', d.downBytes ? Math.round(d.downBytes / 1e6) + ' MB' : '--'],
+    ['Latency while downloading, median', f(d.downLoadedP50, 'ms')],
+    ['Latency while uploading, median', f(d.upLoadedP50, 'ms')],
+  ];
+  if (rec.conn) rows.push(['Browser says', [rec.conn.type, rec.conn.effectiveType].filter(Boolean).join(', ') || '--']);
+  const regions = (d.regions || []).map(r => [r.long || r.name, r.median == null ? 'No reply' : `${Math.round(r.median)} ms, best ${Math.round(r.min)}`]);
+  return `<table class="kv"><tbody>${rows.concat(regions).map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${escapeHtml(String(v))}</td></tr>`).join('')}</tbody></table>`;
+}
+
+function resultBody(rec) {
+  const crit = METRICS.filter(m => m.critical).map(m => metricRow(rec, m.key)).join('');
+  const sec = METRICS.filter(m => !m.critical).map(m => metricRow(rec, m.key)).join('');
+  return `${verdictHtml(rec)}
+    <div class="panel"><h2>Deal breakers</h2><ul class="metrics">${crit}</ul></div>
+    <div class="panel"><h2>Caveats</h2><ul class="metrics">${sec}</ul>
+      <p class="secondary-note">These downgrade a pass to borderline but never fail a connection alone.</p></div>
+    <div class="panel"><details class="more"><summary>All the numbers</summary>${detailTable(rec)}</details></div>`;
+}
+
+function renderResult(rec) {
+  $('setup').hidden = true;
+  $('result').innerHTML = resultBody(rec);
+  $('result').hidden = false;
+  $('dLive').hidden = false; $('dIdle').hidden = true;
+  $('dStage').textContent = rec.verdict.title;
+  $('dStageSub').textContent = 'Saved to Runs';
+  const x = rec.metrics.xrtt ?? (rec.detail && rec.detail.edgeP50);
+  showLive(x, 'ms', rec.metrics.xrtt != null ? 'To nearest Xbox India region' : 'To nearest test server');
+  setAction('result', rec);
+  $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function summaryText(rec) {
+  const lines = [
+    `Cloud gaming check, ${fmtTime(new Date(rec.ts))}${rec.peak ? ' (evening peak)' : ''}`,
+    `${rec.place}, ${rec.spot}, ${rec.band}`,
+    `ISP: ${rec.isp}${rec.meta && rec.meta.asn ? ' (AS' + rec.meta.asn + ')' : ''}`,
+    `Verdict: ${rec.verdict.title}`,
+    ...METRICS.map(m => `${m.name}: ${rec.metrics[m.key] == null ? 'not measured' : (m.key === 'bloat' ? '+' : '') + fmtVal(m.key, rec.metrics[m.key]) + ' ' + m.unit} (${GRADE_WORD[rec.grades[m.key]]})`),
+  ];
+  return lines.join('\n');
+}
+async function shareRun(rec) {
+  const text = summaryText(rec);
+  if (navigator.share) { try { await navigator.share({ title: 'Cloud gaming check', text }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(text); toast('Summary copied'); } catch { toast('Could not share or copy on this browser'); }
+}
+
+/* ------------------------------------------------------------------ UI: runs */
+
+let runFilter = 'All';
+const cmpSel = new Set();
+
+function updateRunCount() { const n = loadRuns().length; $('runCount').textContent = n ? String(n) : ''; }
+
+function renderRuns() {
+  const runs = loadRuns();
+  const places = ['All', ...new Set(runs.map(r => r.place))];
+  if (!places.includes(runFilter)) runFilter = 'All';
+  $('runFilter').innerHTML = places.length > 2 ? places.map(p => `<button type="button" data-v="${escapeHtml(p)}" aria-pressed="${p === runFilter}">${escapeHtml(p)}</button>`).join('') : '';
+  const list = runs.filter(r => runFilter === 'All' || r.place === runFilter);
+  for (const id of [...cmpSel]) if (!runs.find(r => r.id === id)) cmpSel.delete(id);
+  if (!runs.length) {
+    $('runList').innerHTML = '<div class="panel empty"><b>No runs yet</b>Finish a test and it lands here, so you can compare rooms, flats and ISPs side by side.</div>';
+    $('cmpBox').innerHTML = '';
+    return;
+  }
+  $('runList').innerHTML = list.map(r => runCard(r)).join('');
+  renderCompare(runs);
+}
+
+function runCard(r) {
+  const d = new Date(r.ts);
+  const cell = (key, label) => {
+    const v = r.metrics[key];
+    return `<div class="g-${r.grades[key]}"><b>${v == null ? '--' : (key === 'bloat' ? '+' : '') + fmtVal(key, v)}</b><small>${label}</small></div>`;
+  };
+  return `<article class="run" data-id="${r.id}">
+    <div class="run-head">${stIcon(r.verdict.level)}<div class="run-title"><b>${escapeHtml(r.verdict.title)}</b><small>${escapeHtml(fmtTime(d))}</small></div></div>
+    <div class="run-chips"><span class="chip">${escapeHtml(r.place)}</span><span class="chip">${escapeHtml(r.spot)}</span><span class="chip">${escapeHtml(r.band)}</span><span class="chip">${escapeHtml(r.isp)}</span>${r.peak ? '<span class="chip peak">Evening peak</span>' : ''}${(r.v || 1) < 2 ? '<span class="chip">Old version, loss and stutter overstated</span>' : ''}</div>
+    <div class="run-nums">${cell('xrtt', 'Xbox ms')}${cell('jitter', 'jitter ms')}${cell('spikes', 'spikes/min')}${cell('down', 'Mbps down')}</div>
+    <div class="run-actions">
+      <label><input type="checkbox" data-cmp="${r.id}" ${cmpSel.has(r.id) ? 'checked' : ''}> Compare</label>
+      <button class="btn-sm" type="button" data-open="${r.id}">Details</button>
+      <button class="btn-sm" type="button" data-share="${r.id}">Share</button>
+      <button class="btn-sm" type="button" data-del="${r.id}">Delete</button>
+    </div>
+    <div class="run-detail" id="det-${r.id}" hidden></div>
+  </article>`;
+}
+
+function renderCompare(runs) {
+  const sel = runs.filter(r => cmpSel.has(r.id)).slice(0, 2);
+  if (sel.length < 2) {
+    $('cmpBox').innerHTML = cmpSel.size === 1 ? '<div class="panel" style="font-size:14px;color:var(--ink-2)">Pick one more run to compare.</div>' : '';
+    return;
+  }
+  const [a, b] = sel.sort((x, y) => new Date(x.ts) - new Date(y.ts));
+  const head = r => `${escapeHtml(r.place)}<br><span style="font-weight:400">${escapeHtml(r.spot)}${r.peak ? ', peak' : ''}</span>`;
+  const rows = METRICS.map(m => {
+    const cell = r => `<td><span class="gv">${r.metrics[m.key] == null ? '--' : (m.key === 'bloat' ? '+' : '') + fmtVal(m.key, r.metrics[m.key])} ${stIcon(r.grades[m.key], true)}</span></td>`;
+    return `<tr><td>${escapeHtml(m.name)}</td>${cell(a)}${cell(b)}</tr>`;
+  }).join('');
+  $('cmpBox').innerHTML = `<div class="panel"><h2>Side by side</h2>
+    <table class="cmp"><thead><tr><th></th><th>${head(a)}</th><th>${head(b)}</th></tr></thead><tbody>
+    <tr><td>Verdict</td><td><span class="gv">${stIcon(a.verdict.level, true)}</span></td><td><span class="gv">${stIcon(b.verdict.level, true)}</span></td></tr>
+    <tr><td>ISP</td><td>${escapeHtml(a.isp)}</td><td>${escapeHtml(b.isp)}</td></tr>
+    ${rows}</tbody></table>
+    ${compareInsight(a, b)}
+    <div class="btn-row"><button class="btn-sm" type="button" id="cmpClear">Clear comparison</button></div></div>`;
+  $('cmpClear').onclick = () => { cmpSel.clear(); renderRuns(); };
+}
+
+function compareInsight(a, b) {
+  const lvl = { good: 0, ok: 1, bad: 2 };
+  const notes = [];
+  if (a.place === b.place && a.isp === b.isp && a.spot !== b.spot) {
+    const near = a.spot === 'Next to router' ? a : b, far = near === a ? b : a;
+    if (lvl[far.verdict.level] > lvl[near.verdict.level]) notes.push('Same connection, worse away from the router. The Wi-Fi is losing it, not the ISP. Move the router, add a mesh point, or run a cable before switching providers.');
+    else if (lvl[far.verdict.level] < lvl[near.verdict.level]) notes.push('The far spot did better than next to the router, which points at a busy moment on the line during the first test rather than at Wi-Fi. Run both again back to back.');
+    else if (near.verdict.level === 'bad') notes.push('It fails next to the router too, so the ISP line itself is the limit. Better Wi-Fi will not fix this.');
+    else if (near.verdict.level === 'ok') notes.push('Borderline in both spots, so the line sets the limit, not the Wi-Fi. Compare jitter and lag spikes against another ISP.');
+    else notes.push('Both spots pass. Wi-Fi coverage is not a problem here.');
+  }
+  if (a.isp !== b.isp) {
+    const better = lvl[a.verdict.level] < lvl[b.verdict.level] ? a : lvl[b.verdict.level] < lvl[a.verdict.level] ? b : null;
+    notes.push(better ? `${better.isp} came out ahead on the verdict.` : 'Both ISPs landed on the same verdict. Compare jitter and lag spikes first, they decide how a stream feels.');
+  }
+  if (a.peak !== b.peak && a.isp === b.isp) {
+    const pk = a.peak ? a : b, off = pk === a ? b : a;
+    if (lvl[pk.verdict.level] > lvl[off.verdict.level]) notes.push('Worse in the evening peak than off-peak. That pattern points at a shared, congested line, which a plan upgrade rarely fixes.');
+  }
+  return notes.length ? notes.map(n => `<div class="insight">${escapeHtml(n)}</div>`).join('') : '';
+}
+
+$('runList').addEventListener('click', e => {
+  const t = e.target;
+  const open = t.closest('[data-open]');
+  if (open) {
+    const id = open.dataset.open; const box = $('det-' + id);
+    if (box.hidden) { const r = loadRuns().find(x => x.id === id); box.innerHTML = resultBody(r); box.hidden = false; open.textContent = 'Hide'; }
+    else { box.hidden = true; box.innerHTML = ''; open.textContent = 'Details'; }
+    return;
+  }
+  const sh = t.closest('[data-share]');
+  if (sh) { const r = loadRuns().find(x => x.id === sh.dataset.share); if (r) shareRun(r); return; }
+  const del = t.closest('[data-del]');
+  if (del) {
+    if (del.dataset.armed !== '1') { del.dataset.armed = '1'; del.textContent = 'Confirm'; setTimeout(() => { if (del.isConnected) { del.dataset.armed = ''; del.textContent = 'Delete'; } }, 3500); return; }
+    saveRuns(loadRuns().filter(x => x.id !== del.dataset.del)); cmpSel.delete(del.dataset.del); renderRuns(); updateRunCount(); toast('Run deleted');
+  }
+});
+$('runList').addEventListener('change', e => {
+  const cb = e.target.closest('[data-cmp]'); if (!cb) return;
+  if (cb.checked) { cmpSel.add(cb.dataset.cmp); if (cmpSel.size > 2) { const first = [...cmpSel][0]; cmpSel.delete(first); } }
+  else cmpSel.delete(cb.dataset.cmp);
+  renderRuns();
+  if (cmpSel.size === 2) $('cmpBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('runFilter').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; runFilter = b.dataset.v; renderRuns(); });
+
+$('exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify({ app: 'cloud-gaming-check', v: 1, runs: loadRuns() }, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  const d = new Date(); a.download = `cloud-gaming-runs-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+$('importBtn').onclick = () => $('importFile').click();
+$('importFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const j = JSON.parse(await f.text());
+    const incoming = Array.isArray(j) ? j : j.runs;
+    if (!Array.isArray(incoming)) throw new Error('no runs');
+    const runs = loadRuns(); const ids = new Set(runs.map(r => r.id)); let added = 0;
+    for (const r of incoming) if (r && r.id && r.metrics && r.verdict && !ids.has(r.id)) { runs.push(r); added++; }
+    runs.sort((a, b) => new Date(b.ts) - new Date(a.ts)); saveRuns(runs); renderRuns(); updateRunCount();
+    toast(added ? `Imported ${added} run${added === 1 ? '' : 's'}` : 'Nothing new in that file');
+  } catch { toast('That file is not a runs export from this tool'); }
+  e.target.value = '';
+};
+
+/* ------------------------------------------------------------------ tabs + boot */
+
+function showTab(which) {
+  const test = which === 'test';
+  $('tab-test').setAttribute('aria-selected', String(test));
+  $('tab-runs').setAttribute('aria-selected', String(!test));
+  $('view-test').hidden = !test; $('view-runs').hidden = test;
+  document.querySelector('.actionbar').hidden = !test;
+  if (!test) renderRuns();
+  else scheduleDraw();
+}
+$('tab-test').onclick = () => showTab('test');
+$('tab-runs').onclick = () => { if (run) { toast('Finish or stop the test first'); return; } showTab('runs'); };
+
+const tc = $('trace');
+tc.addEventListener('pointermove', traceHover);
+tc.addEventListener('pointerdown', traceHover);
+tc.addEventListener('pointerleave', () => { $('traceTip').hidden = true; });
+window.addEventListener('resize', scheduleDraw);
+
+bindSeg();
+buildGlossary();
+updateRunCount();
+setAction('idle');
+detect();
+scheduleDraw();
+</script>
+</body>
+</html>
